@@ -76,12 +76,22 @@ class AppFormBuilder < ActionView::Helpers::FormBuilder
     end.join " "
   end
   
-  def boolean_filter(field, options = {})
-    collection_select field, [['Ja/Nej', ''], ['Ja', 'true'], ['Nej', 'false']], :last, :first, options
+end
+
+
+# Monkey-patch to force all input elements to include a value attribute,
+# even when the model value is nil. Ugly but effective (I think). Use at
+# your own risk.
+raise 'Ouch' unless ActionView && ActionView::Helpers && ActionView::Helpers::InstanceTag
+
+module ActionView
+  module Helpers
+    class InstanceTag #:nodoc:
+      
+      def value_before_type_cast(object)
+        self.class.value_before_type_cast(object, @method_name) || ''
+      end
+      
+    end
   end
-  
-  def language_select(field, options = {})
-    collection_select field, ['sv', 'en'], :to_s, :to_s, options
-  end
-    
 end
